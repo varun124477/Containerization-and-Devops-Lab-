@@ -29,7 +29,7 @@ sudo systemctl start nginx
 ```
 ## Verify Nginx
 
-curl Host
+```bash
 ![Vagrant Version Screenshot](Images/SS6.png)
 
 utilization of matrix in running state
@@ -49,3 +49,4 @@ Vagrent destroy
 
 
 ![Vagrant Version Screenshot](Images/SS10.jpg)
+```
