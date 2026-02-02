@@ -30,6 +30,7 @@ sudo systemctl start nginx
 ## Verify Nginx
 
 ```bash
+curl localhost
 ![Vagrant Version Screenshot](Images/SS6.png)
 
 utilization of matrix in running state
