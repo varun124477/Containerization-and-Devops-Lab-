@@ -1,0 +1,283 @@
+It looks like you accidentally pasted my earlier explanation into `index.html` instead of the actual HTML code. That's why the page displays the instructions.
+
+---
+
+## ✅ Fix it now
+
+1. Open **`lab/Experiment-7/index.html`** in Notepad or VS Code.
+2. **Delete everything** in the file.
+3. Copy the code block below (only the HTML) and paste it into the file.
+4. Save and push.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 7 – CI/CD using Jenkins, GitHub & Docker Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background: linear-gradient(135deg, #f0f4ff, #e8f0fe, #d9e9fa); font-family: 'Inter', sans-serif; color: #1a1a2e; line-height: 1.7; min-height: 100vh; }
+        .container { max-width: 900px; margin: 2rem auto; background: rgba(255,255,255,0.8); backdrop-filter: blur(15px); border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.5); }
+        h1 { font-size: 2.2rem; font-weight: 700; background: linear-gradient(135deg, #0d47a1, #1565c0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 2rem; border-bottom: 2px solid #2196f3; padding-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; color: #0d47a1; margin-top: 2rem; margin-bottom: 0.75rem; }
+        h3 { font-size: 1.2rem; color: #1565c0; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        h4 { font-size: 1.1rem; color: #0d47a1; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        p { margin-bottom: 1rem; color: #2c3e50; }
+        code { background: #e3f2fd; color: #0d47a1; padding: 0.2em 0.4em; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.9em; }
+        pre { background: #1a1a2e; color: #c9d1d9; padding: 1.5rem; border-radius: 12px; overflow-x: auto; margin: 1.5rem 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        img { max-width: 100%; border-radius: 12px; margin: 1rem 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #e3f2fd; color: #0d47a1; font-weight: 600; }
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        li { margin-bottom: 0.3rem; }
+        a { color: #0d47a1; text-decoration: none; font-weight: 500; }
+        a:hover { text-decoration: underline; }
+        .back-link { display: inline-block; margin-top: 2rem; padding: 0.5rem 1.2rem; background: #e3f2fd; border-radius: 20px; color: #0d47a1; text-decoration: none; font-weight: 600; transition: background 0.2s; }
+        .back-link:hover { background: #bbdefb; }
+    </style>
+</head>
+<body>
+    <div class="container" id="content"></div>
+    <div class="container" style="text-align:center; margin-top:0; padding-top:1rem;">
+        <a href="../../index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <!-- ========== EMBEDDED EXPERIMENT 7 CONTENT ========== -->
+    <script type="text/markdown" id="markdown-content">
+# Experiment 7: CI/CD using Jenkins, GitHub and Docker Hub
+
+## Aim
+To design and implement a complete CI/CD pipeline using Jenkins, integrating source code from GitHub, and building & pushing Docker images to Docker Hub.
+
+## Pre‑requisites
+- Docker & Docker Compose installed
+- GitHub account (for source code)
+- Docker Hub account (for image registry)
+
+![Local project files](./Images/image.png)
+
+---
+
+## Step‑by‑Step Procedure
+
+**Step 1 – Write the Jenkins Pipeline Definition (`Jenkinsfile`)**  
+The `Jenkinsfile` contains the entire CI/CD pipeline written in Groovy.
+
+```groovy
+pipeline {
+    agent any
+    environment { IMAGE_NAME = "varun99566/myapp" }
+    stages {
+        stage('Clone Source') {
+            steps { git 'https://github.com/varun124477/my-app.git' }
+        }
+        stage('Build Docker Image') {
+            steps { sh 'docker build -t $IMAGE_NAME:latest .' }
+        }
+        stage('Login to Docker Hub') {
+            steps { withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
+                sh 'echo $DOCKER_TOKEN | docker login -u varun99566 --password-stdin'
+            }}
+        }
+        stage('Push to Docker Hub') {
+            steps { sh 'docker push $IMAGE_NAME:latest' }
+        }
+    }
+}
+```
+
+![Jenkinsfile content](./Images/1.png)
+
+---
+
+**Step 2 – Write the Flask Application (`app.py`)**  
+```python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello from CI/CD Pipeline!"
+
+app.run(host="0.0.0.0", port=80)
+```
+
+![app.py content](./Images/2.png)
+
+---
+
+**Step 3 – Create the Dockerfile**  
+```dockerfile
+FROM python:3.10-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+EXPOSE 80
+CMD ["python", "app.py"]
+```
+
+![Dockerfile content](./Images/3.png)
+
+---
+
+**Step 4 – First Push Attempt to GitHub**  
+```powershell
+git push -u origin main --force
+```
+![Push command](./Images/4.png)
+
+**Step 5 – Successful Push to GitHub**  
+![Successful push output](./Images/5.png)
+
+**Step 6 – Verify the GitHub Repository**  
+![GitHub repository files](./Images/7.png)
+
+**Step 7 – Write Docker Compose for Jenkins**  
+```yaml
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: always
+    ports:
+      - "9000:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
+volumes:
+  jenkins_home:
+```
+![docker-compose.yml](./Images/6.png)
+
+**Step 8 – Start Jenkins Container**  
+```powershell
+docker compose up -d
+```
+![Starting Jenkins container](./Images/8.png)
+
+**Step 9 – Jenkins Unlock Page**  
+Navigate to `http://localhost:9000` (port 9000 as mapped).  
+![Unlock Jenkins page](./Images/9.png)
+
+**Step 10 – Retrieve Initial Admin Password**  
+```powershell
+docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+![Retrieving password](./Images/10.png)
+
+**Step 11 – Unlock Jenkins**  
+![Entering password](./Images/11.png)
+
+**Step 12 – Install Suggested Plugins**  
+![Plugin selection](./Images/12.png)
+
+**Step 13 – Plugin Installation Progress**  
+![Plugin installation list](./Images/13.png)
+
+**Step 14 – Handle Plugin Failures**  
+![Failed plugins](./Images/14.png)
+
+**Step 15 – Create First Admin User**  
+![Admin user form](./Images/15.png)
+
+**Step 16 – Admin User Details Entered**  
+![Filled admin user details](./Images/16.png)
+
+**Step 17 – Configure Jenkins Instance URL**  
+![Instance configuration](./Images/17.png)
+
+**Step 18 – Jenkins Setup Complete**  
+![Setup finished](./Images/18.png)
+
+**Step 19 – Jenkins Dashboard**  
+![Dashboard](./Images/19.png)
+
+**Step 20 – Verify Installed Plugins**  
+![Plugins verification](./Images/20.png)
+
+**Step 21 – Create a New Pipeline Job**  
+![Pipeline initial configuration](./Images/21.png)
+
+**Step 22 – Set GitHub Repository URL**  
+![Repository URL configured](./Images/22.png)
+
+**Step 23 – Trigger a Manual Build**  
+![Build Now button](./Images/23.png)
+
+**Step 24 – Restart Jenkins Environment (Optional)**  
+```powershell
+docker compose down
+docker compose up -d
+docker exec -it jenkins bash
+```
+![Restarting Jenkins](./Images/24.png)
+
+**Step 25 – Install Docker CLI Inside Jenkins (Optional)**  
+```bash
+apt update && apt install -y docker.io
+```
+![Docker installation inside Jenkins](./Images/25.png)
+
+**Step 26 – Successful Pipeline Execution**  
+![Pipeline console success](./Images/26.png)
+
+**Step 27 – Build History**  
+![Build history](./Images/27.png)
+
+**Step 28 – Verify Image on Docker Hub**  
+![Docker Hub repository](./Images/28.png)
+
+**Step 29 – Run the Docker Image from Docker Hub**  
+```powershell
+docker run -d -p 5000:80 varun99566/myapp
+```
+![Running the container](./Images/29.png)
+
+**Step 30 – Test the Application**  
+Open a browser and navigate to `http://localhost:5000`. You should see **“Hello from CI/CD Pipeline!”**.
+![Application output](./Images/30.png)
+
+---
+
+## Key Concepts
+- **Jenkinsfile** – Defines the pipeline as code.
+- **Credentials Store** – Docker Hub token stored securely in Jenkins.
+- **Host Docker Socket** – Jenkins container shares host Docker daemon to build and push images.
+
+## Observations
+- The pipeline automatically pulls source code, builds a Docker image, and pushes it to Docker Hub.
+- The same host (Docker Desktop) acts as the Jenkins agent.
+- The entire process is triggered by a manual build (webhooks can be added later).
+    </script>
+
+    <script>
+        const raw = document.getElementById('markdown-content').textContent;
+        document.getElementById('content').innerHTML = marked.parse(raw);
+        document.title = document.querySelector('h1')?.textContent || 'Experiment 7';
+    </script>
+</body>
+</html>
+```
+
+---
+
+## 🚀 Now push again
+
+```powershell
+git add lab/Experiment-7/index.html
+git commit -m "Fix Experiment 7 index.html with correct embedded content"
+git push origin main
+```
+
+After the push, the page will display correctly. If you still see the old broken text, do a **hard refresh** (Ctrl+Shift+R) or open in a private/incognito window.
